@@ -74,6 +74,19 @@ def write_entry(path):
     return 0
 
 
+def entry_info():
+    """Print the entry's vital statistics: length, bytes and digest."""
+    import hashlib
+    digest = hashlib.sha256(ENTRY.encode("utf-8")).hexdigest()
+    problems = validate(ENTRY)
+    print("entry: %s" % ENTRY)
+    print("characters: %d" % len(ENTRY))
+    print("bytes: %d" % len(ENTRY.encode("utf-8")))
+    print("sha256: %s" % digest)
+    print("gate: %s" % ("valid" if not problems else "; ".join(problems)))
+    return 1 if problems else 0
+
+
 def self_test():
     """Validate the entry text and a round-trip write/read."""
     problems = validate(ENTRY)
@@ -124,9 +137,13 @@ def main(argv=None):
                         help="where to write the entry (default: %(default)s)")
     parser.add_argument("--self-test", action="store_true",
                         help="validate the entry against the gate and exit")
+    parser.add_argument("--info", action="store_true",
+                        help="print the entry's length, bytes and sha256")
     args = parser.parse_args(argv)
     if args.self_test:
         return self_test()
+    if args.info:
+        return entry_info()
     return write_entry(args.output)
 
 
